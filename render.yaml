@@ -7,6 +7,4 @@ services:
     startCommand: npm start
     envVars:
       - key: BOT_TOKEN
-        value: ${BOT_TOKEN}
       - key: MONGODB_URI
-        value: ${MONGODB_URI}
