@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: financas-bot
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: BOT_TOKEN
+        scope: build
+      - key: MONGODB_URI
+        scope: build
