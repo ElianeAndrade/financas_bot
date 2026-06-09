@@ -1,0 +1,2 @@
+iniciar o bot
+npx tsx src/bot.ts

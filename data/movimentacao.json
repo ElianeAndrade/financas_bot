@@ -1,0 +1,14 @@
+[
+  {
+    "tipo": "entrada",
+    "valor": 6580,
+    "categoria": "salario",
+    "data": "09/06/2026, 16:12:36"
+  },
+  {
+    "tipo": "despesa",
+    "valor": 250,
+    "categoria": "diarista",
+    "data": "09/06/2026, 16:13:18"
+  }
+]
