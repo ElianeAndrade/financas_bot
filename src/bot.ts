@@ -166,15 +166,18 @@ bot.command("despesa", async (ctx) => {
   
   if (args.length === 0) {
     ctx.reply(`
-📉 Despesas
+📉 Despesas (Pagamento de Contas)
 Use:
 /despesa valor categoria
+
 Categorias:
 • plano_saude
 • nubank
 • van_joao
 • diarista
 • extras
+
+Ao registrar, a conta é automaticamente marcada como paga! ✅
 `);
     return;
   }
@@ -207,29 +210,16 @@ Categorias:
   
   await salvarMovimentacao(movimentacao);
   
-  // Verifica se existe uma conta com este nome
-  const contas = await listarContas();
-  const contaExistente = contas.find(
-    (c) => c.nome === categoria && c.status === "pendente"
-  );
+  // Marca automaticamente a conta como paga
+  const contaMarcada = await marcarComoPago(categoria);
   
   let mensagem = `✅ Despesa registrada!\n\n💸 R$ ${valor.toFixed(2)}\n📂 ${categoria}\n📅 ${movimentacao.data}`;
   
-  if (contaExistente) {
-    mensagem += `\n\n❓ Marcar "${categoria}" como pago?`;
-    ctx.reply(mensagem, {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: "Sim ✅", callback_data: `pagar_${categoria}` },
-            { text: "Não ❌", callback_data: "nao" },
-          ],
-        ],
-      },
-    });
-  } else {
-    ctx.reply(mensagem);
+  if (contaMarcada) {
+    mensagem += `\n\n✅ Conta marcada como paga!`;
   }
+  
+  ctx.reply(mensagem);
 });
 
 
@@ -321,28 +311,6 @@ bot.command("contas", async (ctx) => {
   ctx.reply(mensagem);
 });
 
-bot.command("contas_pagar", async (ctx) => {
-  const args = ctx.message.text.split(" ").slice(1);
-  
-  if (args.length === 0) {
-    ctx.reply(`
-✅ Marcar Conta como Pago
-Use:
-/contas_pagar nome_da_conta
-`);
-    return;
-  }
-  
-  const nomeConta = args.join(" ").toLowerCase();
-  const sucesso = await marcarComoPago(nomeConta);
-  
-  if (sucesso) {
-    ctx.reply(`✅ Conta marcada como paga: ${nomeConta}`);
-  } else {
-    ctx.reply(`❌ Conta não encontrada: ${nomeConta}`);
-  }
-});
-
 bot.command("contas_limpar", async (ctx) => {
   const deletadas = await limparContas();
   ctx.reply(`✅ ${deletadas} conta(s) paga(s) removida(s).\n\n🎉 Pronto pro próximo mês!`);
@@ -377,24 +345,6 @@ bot.command("resumo_contas", async (ctx) => {
   }
   
   ctx.reply(resumo);
-});
-
-// Handler para botões inline
-bot.action(/pagar_(.+)/, async (ctx) => {
-  const nomeConta = ctx.match[1];
-  const sucesso = await marcarComoPago(nomeConta);
-  
-  if (sucesso) {
-    await ctx.answerCbQuery(`✅ ${nomeConta} marcada como paga!`);
-    await ctx.editMessageText(`✅ Conta marcada como paga: ${nomeConta}`);
-  } else {
-    await ctx.answerCbQuery(`❌ Erro ao marcar conta`);
-  }
-});
-
-bot.action("nao", async (ctx) => {
-  await ctx.answerCbQuery("Ok, não marcada como paga");
-  await ctx.deleteMessage();
 });
 
 bot.command("saldo", async (ctx) => {
