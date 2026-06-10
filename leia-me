@@ -1,2 +1,11 @@
-iniciar o bot
+Como iniciar o bot?
+
+FORMA RECOMENDADA:
+✅ Duplo-clique em "iniciar_bot.bat"
+
+FORMA MANUAL (PowerShell):
 npx tsx src/bot.ts
+ou
+npm run dev
+
+Leia RODAR_BOT.md para mais detalhes!
