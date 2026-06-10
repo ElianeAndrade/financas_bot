@@ -17,6 +17,13 @@ interface Movimentacao {
   data: string;
 }
 
+interface ContaPagar {
+  nome: string;
+  status: "pendente" | "pago";
+  data_criacao: string;
+  data_pagamento?: string;
+}
+
 const movimentacaoSchema = new mongoose.Schema<Movimentacao>({
   tipo: { type: String, required: true },
   valor: { type: Number, required: true },
@@ -24,7 +31,15 @@ const movimentacaoSchema = new mongoose.Schema<Movimentacao>({
   data: { type: String, required: true },
 });
 
+const contaPagarSchema = new mongoose.Schema<ContaPagar>({
+  nome: { type: String, required: true },
+  status: { type: String, required: true, default: "pendente" },
+  data_criacao: { type: String, required: true },
+  data_pagamento: { type: String },
+});
+
 const MovimentacaoModel = mongoose.model<Movimentacao>("Movimentacao", movimentacaoSchema);
+const ContaPagarModel = mongoose.model<ContaPagar>("ContaPagar", contaPagarSchema);
 
 // Funções auxiliares
 async function salvarMovimentacao(movimentacao: Movimentacao) {
@@ -36,6 +51,37 @@ async function lerMovimentacoes(): Promise<Movimentacao[]> {
   return await MovimentacaoModel.find();
 }
 
+// Funções para contas a pagar
+async function adicionarConta(nome: string) {
+  const conta: ContaPagar = {
+    nome,
+    status: "pendente",
+    data_criacao: new Date().toLocaleString("pt-BR"),
+  };
+  const novaConta = new ContaPagarModel(conta);
+  await novaConta.save();
+}
+
+async function listarContas(): Promise<ContaPagar[]> {
+  return await ContaPagarModel.find().sort({ data_criacao: 1 });
+}
+
+async function marcarComoPago(nome: string): Promise<boolean> {
+  const conta = await ContaPagarModel.findOneAndUpdate(
+    { nome: nome.toLowerCase() },
+    {
+      status: "pago",
+      data_pagamento: new Date().toLocaleString("pt-BR"),
+    }
+  );
+  return conta !== null;
+}
+
+async function limparContas(): Promise<number> {
+  const result = await ContaPagarModel.deleteMany({ status: "pago" });
+  return result.deletedCount || 0;
+}
+
 bot.start((ctx) => {
     ctx.reply(`
 💰 Olá, Eliane!
@@ -44,12 +90,21 @@ Bem-vinda de volta.
 
 Comandos disponíveis:
 
+📊 MOVIMENTAÇÕES:
 /entrada 
 /despesa 
 /investimento 
 
+💾 CONSULTAS:
 /saldo
 /resumo
+
+📋 CONTAS DO MÊS:
+/contas_add (adicionar conta)
+/contas (listar contas)
+/contas_pagar (marcar como pago)
+/resumo_contas (resumo)
+/contas_limpar (deletar pagas)
 
 Digite qualquer comando para mais detalhes.
 `);
@@ -151,7 +206,30 @@ Categorias:
   };
   
   await salvarMovimentacao(movimentacao);
-  ctx.reply(`✅ Despesa registrada!\n\n💸 R$ ${valor.toFixed(2)}\n📂 ${categoria}\n📅 ${movimentacao.data}`);
+  
+  // Verifica se existe uma conta com este nome
+  const contas = await listarContas();
+  const contaExistente = contas.find(
+    (c) => c.nome === categoria && c.status === "pendente"
+  );
+  
+  let mensagem = `✅ Despesa registrada!\n\n💸 R$ ${valor.toFixed(2)}\n📂 ${categoria}\n📅 ${movimentacao.data}`;
+  
+  if (contaExistente) {
+    mensagem += `\n\n❓ Marcar "${categoria}" como pago?`;
+    ctx.reply(mensagem, {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: "Sim ✅", callback_data: `pagar_${categoria}` },
+            { text: "Não ❌", callback_data: "nao" },
+          ],
+        ],
+      },
+    });
+  } else {
+    ctx.reply(mensagem);
+  }
 });
 
 
@@ -200,6 +278,123 @@ Categorias:
   
   await salvarMovimentacao(movimentacao);
   ctx.reply(`✅ Investimento registrado!\n\n💰 R$ ${valor.toFixed(2)}\n📂 ${categoria}\n📅 ${movimentacao.data}`);
+});
+
+// Comandos de contas a pagar
+bot.command("contas_add", async (ctx) => {
+  const args = ctx.message.text.split(" ").slice(1);
+  
+  if (args.length === 0) {
+    ctx.reply(`
+📝 Adicionar Conta
+Use:
+/contas_add nome_da_conta
+`);
+    return;
+  }
+  
+  const nomeConta = args.join(" ").toLowerCase();
+  await adicionarConta(nomeConta);
+  ctx.reply(`✅ Conta adicionada: ${nomeConta}\n⏳ Status: Pendente`);
+});
+
+bot.command("contas", async (ctx) => {
+  const contas = await listarContas();
+  
+  if (contas.length === 0) {
+    ctx.reply("📋 Nenhuma conta adicionada ainda.");
+    return;
+  }
+  
+  let mensagem = "📋 CONTAS DO MÊS\n\n";
+  
+  contas.forEach((conta) => {
+    const emoji = conta.status === "pago" ? "✅" : "⏳";
+    mensagem += `${emoji} ${conta.nome}\n`;
+  });
+  
+  const pendentes = contas.filter((c) => c.status === "pendente").length;
+  const pagas = contas.filter((c) => c.status === "pago").length;
+  
+  mensagem += `\n📊 ${pagas} pagas / ${pendentes} pendentes`;
+  
+  ctx.reply(mensagem);
+});
+
+bot.command("contas_pagar", async (ctx) => {
+  const args = ctx.message.text.split(" ").slice(1);
+  
+  if (args.length === 0) {
+    ctx.reply(`
+✅ Marcar Conta como Pago
+Use:
+/contas_pagar nome_da_conta
+`);
+    return;
+  }
+  
+  const nomeConta = args.join(" ").toLowerCase();
+  const sucesso = await marcarComoPago(nomeConta);
+  
+  if (sucesso) {
+    ctx.reply(`✅ Conta marcada como paga: ${nomeConta}`);
+  } else {
+    ctx.reply(`❌ Conta não encontrada: ${nomeConta}`);
+  }
+});
+
+bot.command("contas_limpar", async (ctx) => {
+  const deletadas = await limparContas();
+  ctx.reply(`✅ ${deletadas} conta(s) paga(s) removida(s).\n\n🎉 Pronto pro próximo mês!`);
+});
+
+bot.command("resumo_contas", async (ctx) => {
+  const contas = await listarContas();
+  
+  if (contas.length === 0) {
+    ctx.reply("📋 Nenhuma conta adicionada ainda.");
+    return;
+  }
+  
+  let resumo = "📊 RESUMO DAS CONTAS\n\n";
+  
+  const pendentes = contas.filter((c) => c.status === "pendente");
+  const pagas = contas.filter((c) => c.status === "pago");
+  
+  if (pagas.length > 0) {
+    resumo += "✅ PAGAS:\n";
+    pagas.forEach((conta) => {
+      resumo += `  • ${conta.nome}\n`;
+    });
+    resumo += "\n";
+  }
+  
+  if (pendentes.length > 0) {
+    resumo += "⏳ PENDENTES:\n";
+    pendentes.forEach((conta) => {
+      resumo += `  • ${conta.nome}\n`;
+    });
+  }
+  
+  ctx.reply(resumo);
+});
+
+// Handler para botões inline
+bot.action(/pagar_(.+)/, async (ctx) => {
+  const nomeConta = ctx.match[1];
+  const sucesso = await marcarComoPago(nomeConta);
+  
+  if (sucesso) {
+    await ctx.answerCbQuery(`✅ ${nomeConta} marcada como paga!`);
+    await ctx.editMessageText(`✅ Conta marcada como paga: ${nomeConta}`);
+  } else {
+    await ctx.answerCbQuery(`❌ Erro ao marcar conta`);
+  }
+});
+
+bot.action("nao", async (ctx) => {
+  await ctx.answerCbQuery("Ok, não marcada como paga");
+  await ctx.deleteMessage();
 });
 
 bot.command("saldo", async (ctx) => {
