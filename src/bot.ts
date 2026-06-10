@@ -62,6 +62,13 @@ async function adicionarConta(nome: string) {
   await novaConta.save();
 }
 
+async function adicionarContasTemplate() {
+  const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude"];
+  for (const conta of contasFixas) {
+    await adicionarConta(conta);
+  }
+}
+
 async function listarContas(): Promise<ContaPagar[]> {
   return await ContaPagarModel.find().sort({ data_criacao: 1 });
 }
@@ -100,9 +107,9 @@ Comandos disponíveis:
 /resumo
 
 📋 CONTAS DO MÊS:
-/contas_add (adicionar conta)
+/contas_template (adicionar padrão)
+/contas_add (adicionar extra)
 /contas (listar contas)
-/contas_pagar (marcar como pago)
 /resumo_contas (resumo)
 /contas_limpar (deletar pagas)
 
@@ -286,6 +293,11 @@ Use:
   const nomeConta = args.join(" ").toLowerCase();
   await adicionarConta(nomeConta);
   ctx.reply(`✅ Conta adicionada: ${nomeConta}\n⏳ Status: Pendente`);
+});
+
+bot.command("contas_template", async (ctx) => {
+  await adicionarContasTemplate();
+  ctx.reply(`✅ Contas padrão adicionadas!\n\n• nubank\n• diarista\n• van_joao\n• plano_saude\n\nAgora adicione extras com /contas_add`);
 });
 
 bot.command("contas", async (ctx) => {
