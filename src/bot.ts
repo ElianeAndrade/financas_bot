@@ -89,6 +89,11 @@ async function limparContas(): Promise<number> {
   return result.deletedCount || 0;
 }
 
+async function resetarTodasContas(): Promise<number> {
+  const result = await ContaPagarModel.deleteMany({});
+  return result.deletedCount || 0;
+}
+
 bot.start((ctx) => {
     ctx.reply(`
 💰 Olá, Eliane!
@@ -107,11 +112,12 @@ Comandos disponíveis:
 /resumo
 
 📋 CONTAS DO MÊS:
-/contas_template (adicionar padrão)
+/contas_template (criar lista padrão)
+/contas_reset (limpar tudo)
 /contas_add (adicionar extra)
 /contas (listar contas)
 /resumo_contas (resumo)
-/contas_limpar (deletar pagas)
+/contas_limpar (deletar só pagas)
 
 Digite qualquer comando para mais detalhes.
 `);
@@ -298,6 +304,11 @@ Use:
 bot.command("contas_template", async (ctx) => {
   await adicionarContasTemplate();
   ctx.reply(`✅ Contas padrão adicionadas!\n\n• nubank\n• diarista\n• van_joao\n• plano_saude\n\nAgora adicione extras com /contas_add`);
+});
+
+bot.command("contas_reset", async (ctx) => {
+  const deletadas = await resetarTodasContas();
+  ctx.reply(`✅ ${deletadas} conta(s) deletada(s)!\n\nUse /contas_template pra começar um novo mês.`);
 });
 
 bot.command("contas", async (ctx) => {
