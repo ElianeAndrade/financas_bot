@@ -51,6 +51,11 @@ async function lerMovimentacoes(): Promise<Movimentacao[]> {
   return await MovimentacaoModel.find();
 }
 
+async function limparMovimentacoes(): Promise<number> {
+  const result = await MovimentacaoModel.deleteMany({});
+  return result.deletedCount || 0;
+}
+
 // Funções para contas a pagar
 async function adicionarConta(nome: string) {
   const conta: ContaPagar = {
@@ -118,6 +123,9 @@ Comandos disponíveis:
 /contas (listar contas)
 /resumo_contas (resumo)
 /contas_limpar (deletar só pagas)
+
+🗑️ LIMPEZA:
+/limpar_movimentacoes (reset saldo/resumo)
 
 Digite qualquer comando para mais detalhes.
 `);
@@ -412,6 +420,11 @@ bot.command("resumo", async (ctx) => {
   });
   
   ctx.reply(resumo);
+});
+
+bot.command("limpar_movimentacoes", async (ctx) => {
+  const deletadas = await limparMovimentacoes();
+  ctx.reply(`✅ ${deletadas} movimentação(ões) deletada(s)!\n\n💰 Saldo e resumo foram zerados.`);
 });
 
 bot.launch();
