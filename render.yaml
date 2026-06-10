@@ -5,6 +5,3 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
-    envVars:
-      - key: BOT_TOKEN
-      - key: MONGODB_URI
