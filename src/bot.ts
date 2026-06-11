@@ -307,6 +307,19 @@ Use:
 });
 
 bot.command("contas_template", async (ctx) => {
+  const contas = await listarContas();
+  const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude"];
+  
+  // Verifica se as contas padrão já existem
+  const jaExistem = contasFixas.every(conta => 
+    contas.some(c => c.nome === conta)
+  );
+  
+  if (jaExistem) {
+    ctx.reply(`⚠️ Contas padrão já foram criadas!\n\nUse /limpar_tudo se quiser recomeçar do zero.`);
+    return;
+  }
+  
   await adicionarContasTemplate();
   ctx.reply(`✅ Contas padrão adicionadas!\n\n• nubank\n• diarista\n• van_joao\n• plano_saude\n\nAgora adicione extras com /contas_add`);
 });
