@@ -68,7 +68,7 @@ async function adicionarConta(nome: string) {
 }
 
 async function adicionarContasTemplate() {
-  const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude"];
+  const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude", "mercado"];
   for (const conta of contasFixas) {
     await adicionarConta(conta);
   }
@@ -126,6 +126,7 @@ Comandos disponíveis:
 
 🗑️ LIMPEZA:
 /limpar_movimentacoes (reset saldo/resumo)
+/limpar_tudo (limpa TUDO!)
 
 Digite qualquer comando para mais detalhes.
 `);
@@ -423,6 +424,13 @@ bot.command("limpar_movimentacoes", async (ctx) => {
   ctx.reply(`✅ ${deletadas} movimentação(ões) deletada(s)!\n\n💰 Saldo e resumo foram zerados.`);
 });
 
+bot.command("limpar_tudo", async (ctx) => {
+  const movimentacoes = await limparMovimentacoes();
+  const contas = await resetarTodasContas();
+  
+  ctx.reply(`✅ TUDO LIMPO!\n\n🗑️ ${movimentacoes} movimentação(ões) deletada(s)\n📋 ${contas} conta(s) deletada(s)\n\n🔄 Pronto pra começar do zero!`);
+});
+
 bot.launch();
 
 // Registra os comandos do bot no Telegram
@@ -439,7 +447,8 @@ bot.telegram.setMyCommands([
   { command: "resumo_contas", description: "Resumo de contas" },
   { command: "contas_limpar", description: "Remove contas pagas" },
   { command: "contas_reset", description: "Limpa todas as contas" },
-  { command: "limpar_movimentacoes", description: "Apaga histórico" },
+  { command: "limpar_movimentacoes", description: "Apaga histórico de movimentações" },
+  { command: "limpar_tudo", description: "Limpa TUDO (contas + movimentações)" },
 ]);
 
 console.log("Bot iniciado");
