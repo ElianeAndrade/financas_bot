@@ -425,4 +425,21 @@ bot.command("limpar_movimentacoes", async (ctx) => {
 
 bot.launch();
 
+// Registra os comandos do bot no Telegram
+bot.telegram.setMyCommands([
+  { command: "start", description: "Mostra menu inicial" },
+  { command: "entrada", description: "Registra entrada/receita" },
+  { command: "despesa", description: "Registra despesa/pagamento" },
+  { command: "investimento", description: "Registra investimento" },
+  { command: "saldo", description: "Mostra saldo atual" },
+  { command: "resumo", description: "Lista todas as movimentações" },
+  { command: "contas_template", description: "Cria contas padrão do mês" },
+  { command: "contas_add", description: "Adiciona nova conta" },
+  { command: "contas", description: "Lista contas do mês" },
+  { command: "resumo_contas", description: "Resumo de contas" },
+  { command: "contas_limpar", description: "Remove contas pagas" },
+  { command: "contas_reset", description: "Limpa todas as contas" },
+  { command: "limpar_movimentacoes", description: "Apaga histórico" },
+]);
+
 console.log("Bot iniciado");
