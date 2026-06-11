@@ -191,12 +191,14 @@ bot.command("despesa", async (ctx) => {
 Use:
 /despesa valor categoria
 
-Categorias:
+Categorias padrão:
 • plano_saude
 • nubank
 • van_joao
 • diarista
 • extras
+
+Ou use o nome de qualquer conta criada com /contas_add
 
 Ao registrar, a conta é automaticamente marcada como paga! ✅
 `);
@@ -213,12 +215,6 @@ Ao registrar, a conta é automaticamente marcada como paga! ✅
   
   if (isNaN(valor)) {
     ctx.reply("❌ Valor inválido! Use um número.");
-    return;
-  }
-  
-  const categoriasValidas = ["plano_saude", "nubank", "van_joao", "diarista", "extras"];
-  if (!categoriasValidas.includes(categoria)) {
-    ctx.reply(`❌ Categoria inválida! Use: ${categoriasValidas.join(", ")}`);
     return;
   }
   
