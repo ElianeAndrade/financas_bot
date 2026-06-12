@@ -11,10 +11,7 @@ npm run dev
 Leia RODAR_BOT.md para mais detalhes!
 
 
-
-
-
-Após algum ajuste
+***Após qualquer ajuste realizar seguinte processo:***
 Edita o código em bot.ts
 Terminal: npm run build
 Fecha a janela do .bat (se tiver rodando)

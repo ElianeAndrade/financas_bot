@@ -3,7 +3,7 @@ node_modules/
 package-lock.json
 yarn.lock
 
-# Environment variables (NUNCA fazer push disso!)
+# Environment variables
 .env
 .env.local
 .env.*.local

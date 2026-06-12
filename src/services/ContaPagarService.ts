@@ -12,7 +12,7 @@ export class ContaPagarService {
   }
 
   static async adicionarTemplate(): Promise<void> {
-    const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude"];
+    const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude", "mercado"];
     for (const conta of contasFixas) {
       await this.adicionar(conta);
     }
@@ -45,7 +45,7 @@ export class ContaPagarService {
 
   static async existemContasPadrao(): Promise<boolean> {
     const contas = await this.listar();
-    const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude"];
+    const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude", "mercado"];
     return contasFixas.every((conta) => contas.some((c) => c.nome === conta));
   }
 }

@@ -1,6 +1,5 @@
 # 🤖 Como Rodar o Bot Localmente
 
-## Quick Start (Forma Rápida)
 
 ### 1. Abra o PowerShell na pasta do projeto
 ```powershell
@@ -11,8 +10,6 @@ cd C:\Users\elianeandrade\Documents\financas_bot
 ```powershell
 npm run dev
 ```
-
-Pronto! O bot estará rodando. 
 
 ## O que você verá
 ```
@@ -27,15 +24,16 @@ Bot iniciado
 - `/investimento valor categoria` - Registrar investimento
 - `/saldo` - Ver saldo
 - `/resumo` - Ver todas as movimentações
+- `/conta_add` - adiciona conta nova
+- `/contas` - Ver contas adicionadas (pagas e pendentes)
 
 ## Exemplos
 
 ```
 /entrada 1000 salario
 /despesa 50 extras
-/investimento 200 eliane
 /saldo
-/resumo
+/conta_add 100 mercado
 ```
 
 ## ⚠️ Importante
