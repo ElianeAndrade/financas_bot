@@ -14,5 +14,11 @@ Leia RODAR_BOT.md para mais detalhes!
 ***Após qualquer ajuste realizar seguinte processo:***
 Edita o código em bot.ts
 Terminal: npm run build
+
+git add .
+git commit -m "alteração"
+git push
+
+
 Fecha a janela do .bat (se tiver rodando)
 Duplo-clica no .bat de novo

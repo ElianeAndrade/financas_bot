@@ -75,6 +75,29 @@ Use:
     );
   });
 
+  // Comando: /contas_delete
+  bot.command("contas_delete", async (ctx) => {
+    const args = ctx.message.text.split(" ").slice(1);
+
+    if (args.length === 0) {
+      ctx.reply(`
+🗑️ Deletar Conta
+Use:
+/contas_delete nome_da_conta
+`);
+      return;
+    }
+
+    const nomeConta = args.join(" ").toLowerCase();
+    const resultado = await ContaPagarService.deletarConta(nomeConta);
+
+    if (resultado.sucesso) {
+      ctx.reply(`✅ Conta deletada: ${nomeConta}`);
+    } else {
+      ctx.reply(`❌ Não foi possível deletar: ${nomeConta}\n\nMotivo: ${resultado.motivo}`);
+    }
+  });
+
   // Comando: /resumo_contas
   bot.command("resumo_contas", async (ctx) => {
     const contas = await ContaPagarService.listar();

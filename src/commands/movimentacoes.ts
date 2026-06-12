@@ -87,7 +87,7 @@ Ao registrar, a conta é automaticamente marcada como paga! ✅
     }
 
     const valor = parseFloat(args[0].replace(",", "."));
-    const categoria = args[1].toLowerCase();
+    const categoria = args.slice(1).join(" ").toLowerCase();
 
     if (isNaN(valor)) {
       ctx.reply("❌ Valor inválido! Use um número.");

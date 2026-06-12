@@ -43,6 +43,21 @@ export class ContaPagarService {
     return result.deletedCount || 0;
   }
 
+  static async deletarConta(nome: string): Promise<{ sucesso: boolean; motivo?: string }> {
+    const conta = await ContaPagarModel.findOne({ nome: nome.toLowerCase() });
+    
+    if (!conta) {
+      return { sucesso: false, motivo: "não encontrada" };
+    }
+    
+    if (conta.status === "pago") {
+      return { sucesso: false, motivo: "já foi paga (histórico)" };
+    }
+    
+    await ContaPagarModel.deleteOne({ nome: nome.toLowerCase() });
+    return { sucesso: true };
+  }
+
   static async existemContasPadrao(): Promise<boolean> {
     const contas = await this.listar();
     const contasFixas = ["nubank", "diarista", "van_joao", "plano_saude", "mercado"];
