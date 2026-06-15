@@ -3,7 +3,7 @@ import { Movimentacao } from "../models/Movimentacao";
 import { MovimentacaoService } from "../services/MovimentacaoService";
 import { ContaPagarService } from "../services/ContaPagarService";
 
-const CATEGORIAS_ENTRADA = ["salario", "extra"];
+const CATEGORIAS_ENTRADA = ["salario", "extra", "sobras"];
 const CATEGORIAS_INVESTIMENTO = ["eliane", "joao", "ana", "outros"];
 
 export function registrarComandosMovimentacoes(bot: Telegraf<Context>) {
@@ -20,6 +20,7 @@ Use:
 Categorias:
 • salario
 • extra
+• sobras
 `);
       return;
     }
