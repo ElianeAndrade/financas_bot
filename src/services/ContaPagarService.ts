@@ -44,18 +44,33 @@ export class ContaPagarService {
   }
 
   static async deletarConta(nome: string): Promise<{ sucesso: boolean; motivo?: string }> {
-    const conta = await ContaPagarModel.findOne({ nome: nome.toLowerCase() });
+    const nomeLower = nome.toLowerCase();
     
-    if (!conta) {
-      return { sucesso: false, motivo: "não encontrada" };
+    // Tenta achar uma conta PENDENTE com esse nome
+    const contaPendente = await ContaPagarModel.findOne({ 
+      nome: nomeLower,
+      status: "pendente"
+    });
+    
+    if (contaPendente) {
+      // Encontrou uma pendente, deleta ela
+      await ContaPagarModel.deleteOne({ _id: contaPendente._id });
+      return { sucesso: true };
     }
     
-    if (conta.status === "pago") {
+    // Se não encontrou pendente, tenta achar uma PAGA
+    const contaPaga = await ContaPagarModel.findOne({ 
+      nome: nomeLower,
+      status: "pago"
+    });
+    
+    if (contaPaga) {
+      // Encontrou uma paga, não pode deletar
       return { sucesso: false, motivo: "já foi paga (histórico)" };
     }
     
-    await ContaPagarModel.deleteOne({ nome: nome.toLowerCase() });
-    return { sucesso: true };
+    // Não encontrou nenhuma
+    return { sucesso: false, motivo: "não encontrada" };
   }
 
   static async existemContasPadrao(): Promise<boolean> {

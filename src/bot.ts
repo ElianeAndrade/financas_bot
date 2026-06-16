@@ -35,6 +35,7 @@ Comandos disponíveis:
 /contas_template (criar lista padrão)
 /contas_reset (limpar tudo)
 /contas_add (adicionar extra)
+/contas_delete (deletar uma conta)
 /contas (listar contas)
 /resumo_contas (resumo)
 /contas_limpar (deletar só pagas)
@@ -65,6 +66,7 @@ bot.telegram.setMyCommands([
   { command: "resumo", description: "Lista todas as movimentações" },
   { command: "contas_template", description: "Cria contas padrão do mês" },
   { command: "contas_add", description: "Adiciona nova conta" },
+  { command: "contas_delete", description: "Deleta uma conta específica" },
   { command: "contas", description: "Lista contas do mês" },
   { command: "resumo_contas", description: "Resumo de contas" },
   { command: "contas_limpar", description: "Remove contas pagas" },
